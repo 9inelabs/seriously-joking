@@ -68,10 +68,19 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
       });
 
       if (pkg.price === 0) {
-        // Free ticket — auto-approve and go straight to ticket page
-        await fetch(`/api/approve-free/${encodeURIComponent(reg.ref_number)}`, {
-          method: "POST",
-        });
+        // Call the approve API and WAIT for it to fully complete
+        // before navigating, so Supabase is already updated when
+        // the ticket page loads.
+        const approveRes = await fetch(
+          `/api/approve-free/${encodeURIComponent(reg.ref_number)}`,
+          { method: "POST" }
+        );
+
+        if (!approveRes.ok) {
+          throw new Error("We couldn't confirm your free ticket. Please try again.");
+        }
+
+        // Approval is confirmed in Supabase — now safe to navigate
         router.push(`/ticket/${encodeURIComponent(reg.ref_number)}`);
       } else {
         router.push(`/payment/${encodeURIComponent(reg.ref_number)}`);
@@ -102,7 +111,7 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
             {isTable
               ? "One person books the table and brings the crew. We'll need the host's details now — guest names can be added any time before the show."
               : pkg.price === 0
-              ? "Tell us who's coming. Your free ticket will be sent to you instantly."
+              ? "Tell us who's coming. Your free ticket will be ready instantly."
               : "Tell us who's coming. We'll send your ticket here once payment is confirmed."}
           </p>
         </div>
@@ -234,7 +243,7 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
         <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-block">
           {isSubmitting ? (
             <>
-              <Spinner size={16} /> Saving…
+              <Spinner size={16} /> {pkg.price === 0 ? "Getting your ticket…" : "Saving…"}
             </>
           ) : (
             <>
