@@ -14,18 +14,58 @@ import { setTransferRef } from "@/lib/registrations";
 import { PACKAGES, formatNaira } from "@/lib/packages";
 import { BANK, EVENT, eventShortDate } from "@/lib/event";
 
+// We store the draft transfer ref in sessionStorage under this key.
+// Each order gets its own slot so multiple tabs don't clash.
+function draftKey(ref: string) {
+  return `sj26_transfer_draft_${ref}`;
+}
+
 export function PaymentClient({ refNumber }: { refNumber: string }) {
   const router = useRouter();
   const { registration, loading, error, notFound, refetch } = useRegistration(refNumber);
   const [transferRefInput, setTransferRefInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [restored, setRestored] = useState(false);
 
-  // If this order is already approved, jump straight to the ticket.
+  // ── Restore any saved draft when the component first mounts ──────────────
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(draftKey(refNumber));
+      if (saved) {
+        setTransferRefInput(saved);
+        setRestored(true);
+      }
+    } catch {
+      // sessionStorage blocked (private mode etc.) — fail silently
+    }
+  }, [refNumber]);
+
+  // ── Persist the draft every time the user types ───────────────────────────
+  useEffect(() => {
+    try {
+      if (transferRefInput) {
+        sessionStorage.setItem(draftKey(refNumber), transferRefInput);
+      } else {
+        sessionStorage.removeItem(draftKey(refNumber));
+      }
+    } catch {
+      // fail silently
+    }
+  }, [transferRefInput, refNumber]);
+
+  // ── If this order is already approved, jump straight to the ticket ────────
   useEffect(() => {
     if (registration?.payment_status === "approved") {
       router.replace(`/ticket/${encodeURIComponent(refNumber)}`);
     }
   }, [registration?.payment_status, router, refNumber]);
+
+  // ── If the user was previously on the pending screen, send them back ──────
+  useEffect(() => {
+    if (registration?.payment_status === "pending" && registration?.transfer_ref) {
+      router.replace(`/pending/${encodeURIComponent(refNumber)}`);
+    }
+  }, [registration?.payment_status, registration?.transfer_ref, router, refNumber]);
 
   function Shell({ children }: { children: React.ReactNode }) {
     return (
@@ -77,6 +117,8 @@ export function PaymentClient({ refNumber }: { refNumber: string }) {
       if (transferRefInput.trim()) {
         await setTransferRef(refNumber, transferRefInput.trim());
       }
+      // Clear the draft once the user has successfully submitted
+      try { sessionStorage.removeItem(draftKey(refNumber)); } catch { /* ignore */ }
     } catch {
       // Saving the optional ref is best-effort — never block the user here.
     } finally {
@@ -167,6 +209,13 @@ export function PaymentClient({ refNumber }: { refNumber: string }) {
             />
             <BankRow label="Use this reference" value={registration.ref_number} last />
           </div>
+
+          {/* Restored draft notice */}
+          {restored && (
+            <div className="mb-4 rounded-sm border border-[rgba(212,167,74,.25)] bg-[rgba(212,167,74,.07)] px-4 py-3 text-[13px] text-gold-2">
+              👋 Welcome back — we kept your transfer reference from earlier.
+            </div>
+          )}
 
           <div className="mb-6">
             <label className="mb-2 block text-[11px] font-bold uppercase tracking-[.14em] text-gold-2">
