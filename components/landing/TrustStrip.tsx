@@ -26,9 +26,9 @@ export function TrustStrip() {
     >
       {ITEMS.map((item) => (
         <div key={item.title}>
-          <h4 className="mb-[6px] font-display text-[18px] uppercase tracking-[.06em] text-gold-1">
+          <h3 className="mb-[6px] font-display text-[18px] uppercase tracking-[.06em] text-gold-1">
             {item.title}
-          </h4>
+          </h3>
           <p className="text-[13px] leading-[1.6] text-mute">{item.body}</p>
         </div>
       ))}

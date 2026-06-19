@@ -41,10 +41,11 @@ export function SiteHeader({
           {backLabel ?? "Back"}
         </Link>
       ) : cta ? (
-        <Link href={cta.href} className="site-cta-link">
-          <span className="rounded-full border border-gold-3 px-[18px] py-[10px] text-[12px] font-bold uppercase tracking-[.12em] text-gold-1 transition-all hover:border-transparent hover:bg-gold-grad hover:text-ink-1">
-            {cta.label}
-          </span>
+        <Link
+          href={cta.href}
+          className="rounded-full border border-gold-3 px-[18px] py-[10px] text-[12px] font-bold uppercase tracking-[.12em] text-gold-1 transition-all hover:border-transparent hover:bg-gold-grad hover:text-ink-1"
+        >
+          {cta.label}
         </Link>
       ) : null}
     </header>

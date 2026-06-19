@@ -2,6 +2,7 @@ import { PaymentClient } from "@/components/payment/PaymentClient";
 
 export const metadata = {
   title: "Send your transfer — Seriously Joking",
+  robots: { index: false, follow: false },
 };
 
 export default function PaymentPage({

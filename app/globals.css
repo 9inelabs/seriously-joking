@@ -47,6 +47,28 @@
     background: rgba(212, 167, 74, 0.3);
     color: var(--cream);
   }
+
+  /* Skip link — visually hidden until focused */
+  .skip-link {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    transform: translateY(-160%);
+    background: var(--gold-grad);
+    color: var(--ink-1);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: transform 0.18s ease;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: none;
+  }
 }
 
 /* ============================================================

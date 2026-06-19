@@ -46,14 +46,14 @@ export function PackageCard({ pkg }: { pkg: PackageDef }) {
       <div className="mb-1 text-[10px] font-bold uppercase tracking-[.25em] text-gold-2">
         {pkg.tier}
       </div>
-      <div
+      <h3
         className={[
           "mb-4 font-display uppercase leading-none tracking-[.04em] text-cream",
           pkg.nameSmall ? "text-[22px]" : "text-[28px]",
         ].join(" ")}
       >
         {pkg.name}
-      </div>
+      </h3>
 
       {/* price */}
       {pkg.price === 0 ? (

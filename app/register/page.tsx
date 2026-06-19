@@ -6,6 +6,7 @@ import { isPackageType } from "@/lib/packages";
 
 export const metadata = {
   title: "Your details — Seriously Joking",
+  robots: { index: false, follow: false },
 };
 
 export default function RegisterPage({
