@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { useState } from "react";
+// TODO: real headliner photo, auto-renamed from the uploaded WhatsApp file.
+// Replace public/hero-image/portrait.jpg to swap it (keep the same path/name).
+import portraitImg from "@/public/hero-image/portrait.jpg";
 
 /** Stylised comedian-at-mic silhouette — the placeholder until a real photo lands. */
 function Silhouette() {
@@ -38,8 +41,8 @@ function Silhouette() {
 }
 
 export function Portrait() {
-  // Until /public/portrait.jpg exists, the optimised <Image> 404s → we fall back
-  // to the silhouette. Drop a real photo at /public/portrait.jpg to swap it in.
+  // Render the real photo; if it ever fails to load, fall back to the silhouette
+  // so the hero never shows a broken image.
   const [hasPhoto, setHasPhoto] = useState(true);
 
   return (
@@ -74,10 +77,11 @@ export function Portrait() {
       <div className="absolute inset-0 z-[2] grid place-items-end justify-items-center">
         {hasPhoto ? (
           <Image
-            src="/portrait.jpg"
+            src={portraitImg}
             alt="MC Oga Micko, headlining comedian"
             fill
             priority
+            placeholder="blur"
             sizes="(max-width: 900px) 100vw, 480px"
             className="object-cover object-top"
             onError={() => setHasPhoto(false)}
