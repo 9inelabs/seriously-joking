@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Send } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -13,7 +13,6 @@ import { Ticket } from "./Ticket";
 export function TicketClient({ refNumber }: { refNumber: string }) {
   const router = useRouter();
   const { registration, loading, error, notFound, refetch } = useRegistration(refNumber);
-  const ticketRef = useRef<HTMLElement>(null);
   const [downloading, setDownloading] = useState(false);
 
   const status = registration?.payment_status;
@@ -73,39 +72,29 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
     );
   }
 
+  // PDF is generated server-side (clean, identical across browsers). We fetch it
+  // as a blob and save it; if the blob download path is blocked (older mobile
+  // Safari), fall back to a direct navigation — the route sends the file with a
+  // Content-Disposition filename either way.
   async function downloadPdf() {
-    const node = ticketRef.current;
-    if (!node) return;
     setDownloading(true);
+    const url = `/api/ticket/${encodeURIComponent(registration!.ref_number)}/pdf`;
+    const filename = `seriously-joking-ticket-${registration!.ref_number}.pdf`;
     try {
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-      const canvas = await html2canvas(node, {
-        backgroundColor: "#050B14",
-        scale: 2,
-        useCORS: true,
-        // html2canvas can't render `background-clip: text`; paint the gold
-        // gradient headings as solid gold in the clone so they're visible.
-        onclone: (doc) => {
-          doc.querySelectorAll<HTMLElement>(".gold-text").forEach((el) => {
-            el.style.background = "none";
-            el.style.color = "#D4A74A";
-            el.style.webkitTextFillColor = "#D4A74A";
-          });
-        },
-      });
-      const img = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: canvas.width >= canvas.height ? "landscape" : "portrait",
-        unit: "px",
-        format: [canvas.width, canvas.height],
-      });
-      pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save(`seriously-joking-${registration!.ref_number}.pdf`);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     } catch {
-      window.alert("Sorry — the download failed. You can screenshot your ticket instead.");
+      // Fallback: let the browser handle the file directly.
+      window.location.href = url;
     } finally {
       setDownloading(false);
     }
@@ -125,7 +114,7 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
           </p>
         </div>
 
-        <Ticket ref={ticketRef} registration={registration} />
+        <Ticket registration={registration} />
 
         <div className="mt-8 flex w-full max-w-[820px] flex-wrap justify-center gap-3">
           <button onClick={downloadPdf} disabled={downloading} className="btn btn-primary">
