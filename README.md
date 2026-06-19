@@ -26,8 +26,9 @@ pay by manual bank transfer, wait for human confirmation, and receive a QR ticke
 | `/` | Landing — hero, packages, trust, sponsors, footer |
 | `/register?package=<slug>` | Attendee/host details (`regular` `vip` `table_5` `table_8` `premium`) |
 | `/payment/[refNumber]` | Bank-transfer instructions |
-| `/pending/[refNumber]` | Awaiting confirmation — polls every 8s |
-| `/ticket/[refNumber]` | Issued ticket with QR + PDF download (approved only) |
+| `/pending/[refNumber]` | Calm confirmation — static, no polling; the ticket arrives by email |
+| `/ticket/[refNumber]` | Issued ticket with QR + server-generated PDF (approved only) |
+| `/api/ticket/[refNumber]/pdf` | Server-side PDF (`@react-pdf/renderer`), approved only |
 
 ## Local development
 
