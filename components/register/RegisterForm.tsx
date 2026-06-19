@@ -19,7 +19,7 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
   const router = useRouter();
   const pkg = PACKAGES[packageType];
   const isTable = isTablePackage(packageType);
-  const guestSeats = isTable ? pkg.seats - 1 : 0; // seat 1 = host
+  const guestSeats = isTable ? pkg.seats - 1 : 0;
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -67,7 +67,15 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
         guests,
       });
 
-      router.push(`/payment/${encodeURIComponent(reg.ref_number)}`);
+      if (pkg.price === 0) {
+        // Free ticket — auto-approve and go straight to ticket page
+        await fetch(`/api/approve-free/${encodeURIComponent(reg.ref_number)}`, {
+          method: "POST",
+        });
+        router.push(`/ticket/${encodeURIComponent(reg.ref_number)}`);
+      } else {
+        router.push(`/payment/${encodeURIComponent(reg.ref_number)}`);
+      }
     } catch (e) {
       setSubmitError(
         e instanceof Error
@@ -93,6 +101,8 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
           <p className="max-w-[480px] text-[14px] text-mute">
             {isTable
               ? "One person books the table and brings the crew. We'll need the host's details now — guest names can be added any time before the show."
+              : pkg.price === 0
+              ? "Tell us who's coming. Your free ticket will be sent to you instantly."
               : "Tell us who's coming. We'll send your ticket here once payment is confirmed."}
           </p>
         </div>
@@ -228,7 +238,8 @@ export function RegisterForm({ packageType }: { packageType: PackageType }) {
             </>
           ) : (
             <>
-              Continue to payment <ArrowRight size={16} />
+              {pkg.price === 0 ? "Get my free ticket" : "Continue to payment"}{" "}
+              <ArrowRight size={16} />
             </>
           )}
         </button>
