@@ -2,27 +2,36 @@
 
 Tickets and rejections are delivered **by email**, automatically, after an admin
 changes `payment_status`. A Postgres trigger calls a Supabase Edge Function, which
-renders a branded email and sends it through **Resend**.
+renders a branded email and sends it through **SendGrid** (`/v3/mail/send`).
 
 ```
-admin UPDATE payment_status ──▶ trigger (pg_net) ──▶ Edge Function ──▶ Resend ──▶ inbox
+admin UPDATE payment_status ──▶ trigger (pg_net) ──▶ Edge Function ──▶ SendGrid ──▶ inbox
    pending → approved                              send-ticket-email
    pending → rejected                              send-rejection-email
 ```
 
 ## Prerequisites
 - [Supabase CLI](https://supabase.com/docs/guides/cli) installed and `supabase login` done.
-- A [Resend](https://resend.com) account.
+- A [SendGrid](https://sendgrid.com) account.
+- A Gmail account you'll create just for sending (the verified single sender).
 - This project linked: `supabase link --project-ref lbeicatsvzbvlfhqjkgg`
 
 ---
 
-## 1. Resend
-1. Sign up at resend.com.
-2. **Sending domain:** add + verify your domain (Domains → Add). For a quick test you
-   can skip this and use `onboarding@resend.dev` as the sender — but in test mode Resend
-   only delivers to the email address that owns the Resend account.
-3. **API key:** API Keys → Create → copy it (starts `re_…`).
+## 1. SendGrid (Single Sender Verification)
+1. Sign up at sendgrid.com and finish onboarding.
+2. **Verify the sender:** Settings → **Sender Authentication** → **Verify a Single Sender** →
+   fill the form using your new **Gmail** address as the *From* address → click the
+   confirmation link SendGrid emails to that Gmail. The `From` you use in `EMAIL_FROM`
+   (step 3) **must exactly match** this verified address.
+3. **API key:** Settings → **API Keys** → **Create API Key** → give it **Mail Send**
+   permission (Restricted Access → enable *Mail Send*) → copy it (starts `SG.…`; shown once).
+
+> ⚠️ **Deliverability note:** sending *from* an `@gmail.com` address through SendGrid means
+> SPF/DKIM align to SendGrid, not Gmail, so some inboxes may file it under spam (Gmail's
+> domain policy is lenient, so it won't be outright rejected). Fine for testing / low volume.
+> For best inbox placement later, verify a custom domain (Domain Authentication) and send
+> from `tickets@your-domain` instead.
 
 ## 2. Apply the migration
 Run `supabase/migrations/20260619120000_email_delivery.sql` — either:
@@ -38,16 +47,16 @@ them. Set the rest (pick a long random `WEBHOOK_SECRET`, e.g. `openssl rand -hex
 
 ```bash
 supabase secrets set \
-  RESEND_API_KEY="re_xxxxxxxx" \
-  EMAIL_FROM="Seriously Joking <tickets@your-domain.com>" \
+  SENDGRID_API_KEY="SG.xxxxxxxx" \
+  EMAIL_FROM="Seriously Joking <your-verified-gmail@gmail.com>" \
   WEBHOOK_SECRET="<long-random-string>" \
   SITE_URL="https://your-domain.vercel.app" \
   SUPPORT_PHONE="08080355773" \
   EVENT_DATE="2026-07-10T18:00:00+01:00" \
   EVENT_VENUE="Lavianto Lounge, Ikenegbu, Owerri"
 ```
-> For the quick test, use `EMAIL_FROM="Seriously Joking <onboarding@resend.dev>"` and book
-> with the email that owns your Resend account.
+> `EMAIL_FROM` must match the **Verified Single Sender** from step 1 (the `<…>` address).
+> The display name before it is free text.
 
 ## 4. Deploy the functions
 They authenticate with a shared secret (not a Supabase JWT), so deploy with
@@ -101,8 +110,11 @@ on conflict (key) do update set value = excluded.value;
   A `401` means `webhook_secret` ≠ the function's `WEBHOOK_SECRET`. A `404`/timeout means
   `edge_base_url` is wrong (must be the `*.functions.supabase.co` host, no trailing slash).
 - **Rejection 422** in logs = `rejection_reason` was null. Always set it in the same UPDATE.
-- **Resend 403/422** = the `EMAIL_FROM` domain isn't verified, or (test mode) the recipient
-  isn't your Resend account email.
+- **SendGrid 401** = bad/old `SENDGRID_API_KEY`. **403 "from address does not match a
+  verified Sender Identity"** = `EMAIL_FROM` ≠ your Verified Single Sender. **413** = payload
+  too big (shouldn't happen here).
+- **Email in spam?** Expected-ish with a Gmail `From` via SendGrid (see the deliverability
+  note above) — check the spam folder during testing.
 
 ## Admin dashboard contract (separate project)
 - **Approve:** set `payment_status='approved'`, `approved_at=now()`.

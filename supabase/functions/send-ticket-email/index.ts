@@ -1,10 +1,10 @@
 // send-ticket-email — invoked by the DB trigger when payment_status: pending → approved.
 // Fetches the registration with the service role, builds the QR + premium HTML
-// ticket email, and sends it via Resend.
+// ticket email, and sends it via SendGrid.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import QRCode from "npm:qrcode@1.5.4";
 import { ticketEmailHtml, type EmailRegistration } from "../_shared/email.ts";
-import { sendEmail } from "../_shared/resend.ts";
+import { sendEmail } from "../_shared/sendgrid.ts";
 
 Deno.serve(async (req) => {
   try {
@@ -59,11 +59,13 @@ Deno.serve(async (req) => {
     });
 
     const result = await sendEmail({
-      from: Deno.env.get("EMAIL_FROM") ?? "Seriously Joking <onboarding@resend.dev>",
+      from: Deno.env.get("EMAIL_FROM") ?? "",
       to: reg.email,
       subject: `Your ticket is live — Seriously Joking (${reg.ref_number})`,
       html,
-      attachments: [{ filename: "ticket-qr.png", content: qrBase64, content_id: qrCid }],
+      attachments: [
+        { filename: "ticket-qr.png", content: qrBase64, type: "image/png", content_id: qrCid },
+      ],
     });
 
     console.log("ticket email sent", reg.ref_number, result.id);

@@ -2,7 +2,7 @@
 // REFUSES to send if rejection_reason is missing (fail loudly).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { rejectionEmailHtml, type EmailRegistration } from "../_shared/email.ts";
-import { sendEmail } from "../_shared/resend.ts";
+import { sendEmail } from "../_shared/sendgrid.ts";
 
 Deno.serve(async (req) => {
   try {
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     });
 
     const result = await sendEmail({
-      from: Deno.env.get("EMAIL_FROM") ?? "Seriously Joking <onboarding@resend.dev>",
+      from: Deno.env.get("EMAIL_FROM") ?? "",
       to: reg.email,
       subject: `About your Seriously Joking booking (${reg.ref_number})`,
       html,

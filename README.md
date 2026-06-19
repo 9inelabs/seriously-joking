@@ -58,6 +58,17 @@ Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL editor. I
 - `SECURITY DEFINER` RPCs the public may call: `create_registration`,
   `get_registration_by_ref`, `set_transfer_ref`
 
+## Email-based ticket delivery
+
+After an admin changes `payment_status`, a Postgres trigger (`pg_net`) calls a Supabase
+Edge Function that emails the attendee via **SendGrid** — a branded ticket (with QR + a
+"view online" link) on approval, or an apologetic email quoting the **required**
+`rejection_reason` on rejection. See [`supabase/EMAIL_SETUP.md`](./supabase/EMAIL_SETUP.md)
+for the full setup, deploy, and acceptance-test steps.
+
+- Migration: `supabase/migrations/20260619120000_email_delivery.sql`
+- Functions: `supabase/functions/send-ticket-email`, `supabase/functions/send-rejection-email`
+
 ### Approving / rejecting a payment (manual, by a human)
 
 ```sql
@@ -66,9 +77,10 @@ update public.registrations
    set payment_status = 'approved', approved_at = now()
  where ref_number = 'SJ26-XXXX-0000';
 
--- reject
+-- reject (rejection_reason is REQUIRED — the rejection email won't send without it)
 update public.registrations
-   set payment_status = 'rejected'
+   set payment_status = 'rejected', rejected_at = now(),
+       rejection_reason = 'Bank reference did not match any pending order'
  where ref_number = 'SJ26-XXXX-0000';
 ```
 
