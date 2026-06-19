@@ -114,7 +114,7 @@ export const Ticket = forwardRef<HTMLElement, { registration: Registration }>(
               <Cell label="Admits" value={pkg.seats === 1 ? "1 guest" : `${pkg.seats} guests`} sub={pkg.unit} />
             )}
             <Cell label="Date" value={dateLine} sub={`${weekday} · doors 5 PM`} />
-            <Cell label="Showtime" value={time.toUpperCase()} sub="show ends ~9 PM" />
+            <Cell label="Showtime" value={time.toUpperCase()} sub="show ends ~till mama calls" />
             <Cell label="Venue" value={EVENT.venue} full />
           </div>
 

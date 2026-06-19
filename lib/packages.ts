@@ -29,7 +29,6 @@ export const PACKAGES: Record<PackageType, PackageDef> = {
     perks: [
       "Entry to the main floor",
       "First-come, first-served",
-      "Cash bar access",
     ],
   },
   vip: {
@@ -44,9 +43,7 @@ export const PACKAGES: Record<PackageType, PackageDef> = {
     badge: "★ Most Picked",
     perks: [
       "Reserved seating, front block",
-      "Welcome drink on arrival",
       "Skip the entry queue",
-      "Souvenir laminate",
     ],
   },
   table_5: {
@@ -78,7 +75,6 @@ export const PACKAGES: Record<PackageType, PackageDef> = {
     perks: [
       "Larger table, side-floor",
       "Reserved waitperson",
-      "Complimentary appetizer board",
     ],
   },
   premium: {

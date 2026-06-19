@@ -1,6 +1,6 @@
 const ITEMS = [
   {
-    title: "Verified by humans",
+    title: "Verified by a real agent",
     body: "Bank transfers are confirmed manually, usually within 30 minutes. You'll get a text and email the moment your ticket goes live.",
   },
   {

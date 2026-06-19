@@ -61,9 +61,6 @@ export function Hero() {
             <Link href="#packages" className="btn btn-primary">
               Choose a Package <ArrowRight size={16} />
             </Link>
-            <a href="#show" className="btn btn-ghost">
-              Watch a Clip
-            </a>
           </div>
         </div>
 

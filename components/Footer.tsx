@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="flex flex-wrap items-center justify-between gap-4 bg-ink-1 px-5 py-7 text-[12px] text-mute md:px-10"
+      className="flex flex-col items-center gap-2 bg-ink-1 px-5 py-7 text-center text-[12px] text-mute md:px-10"
     >
       <div>© 2026 House of Oga Micko · Owerri, Imo State</div>
       <div>

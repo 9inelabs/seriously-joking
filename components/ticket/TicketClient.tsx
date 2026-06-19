@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, Wallet, Send } from "lucide-react";
+import { Download, Send } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -138,9 +138,6 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
                 <Download size={16} /> Save / Download PDF
               </>
             )}
-          </button>
-          <button onClick={() => window.alert("Apple Wallet — coming soon")} className="btn btn-ghost">
-            <Wallet size={16} /> Add to Apple Wallet
           </button>
           <button
             onClick={() => {

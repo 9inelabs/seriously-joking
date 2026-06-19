@@ -65,13 +65,8 @@ export function Portrait() {
         }}
       />
 
-      {/* live tag */}
+      {/* live tag — red live dot removed per Round 1, gold border kept */}
       <span className="absolute left-5 top-5 z-[4] inline-flex items-center gap-2 rounded-full border border-[rgba(212,167,74,.3)] bg-[rgba(5,11,20,.75)] px-3 py-2 text-[10px] font-bold uppercase tracking-[.2em] text-gold-1 backdrop-blur-sm">
-        <span
-          aria-hidden
-          className="h-[6px] w-[6px] animate-livePulse rounded-full"
-          style={{ background: "#ff4848", boxShadow: "0 0 10px #ff4848" }}
-        />
         Live · Stand-up
       </span>
 
