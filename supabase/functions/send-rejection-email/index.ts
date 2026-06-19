@@ -1,8 +1,6 @@
-// send-rejection-email — invoked by the DB trigger when payment_status: pending → rejected.
-// REFUSES to send if rejection_reason is missing (fail loudly).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { rejectionEmailHtml, type EmailRegistration } from "../_shared/email.ts";
-import { sendEmail } from "../_shared/sendgrid.ts";
+import { sendEmail } from "../_shared/brevo.ts";
 
 Deno.serve(async (req) => {
   try {
@@ -33,7 +31,6 @@ Deno.serve(async (req) => {
       return new Response("registration not found", { status: 404 });
     }
 
-    // Never send a rejection with no reason.
     if (!reg.rejection_reason || !reg.rejection_reason.trim()) {
       console.error("refusing to send rejection email with no reason", reg.ref_number);
       return new Response("rejection_reason is required", { status: 422 });

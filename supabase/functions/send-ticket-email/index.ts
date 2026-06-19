@@ -1,16 +1,12 @@
-// send-ticket-email — invoked by the DB trigger when payment_status: pending → approved.
-// Fetches the registration with the service role, builds the QR + premium HTML
-// ticket email, and sends it via SendGrid.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import QRCode from "npm:qrcode@1.5.4";
 import { ticketEmailHtml, type EmailRegistration } from "../_shared/email.ts";
-import { sendEmail } from "../_shared/sendgrid.ts";
+import { sendEmail } from "../_shared/brevo.ts";
 
 Deno.serve(async (req) => {
   try {
     if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
-    // Shared-secret auth (functions deployed with --no-verify-jwt).
     if (req.headers.get("x-webhook-secret") !== Deno.env.get("WEBHOOK_SECRET")) {
       return new Response("Unauthorized", { status: 401 });
     }
@@ -36,11 +32,9 @@ Deno.serve(async (req) => {
       return new Response("registration not found", { status: 404 });
     }
     if (reg.payment_status !== "approved") {
-      // Defensive: only ever email tickets for approved bookings.
       return new Response("registration not approved", { status: 409 });
     }
 
-    // QR PNG → base64 for an inline cid attachment.
     const dataUrl: string = await QRCode.toDataURL(reg.ticket_id, {
       errorCorrectionLevel: "M",
       margin: 1,
@@ -64,7 +58,12 @@ Deno.serve(async (req) => {
       subject: `Your ticket is live — Seriously Joking (${reg.ref_number})`,
       html,
       attachments: [
-        { filename: "ticket-qr.png", content: qrBase64, type: "image/png", content_id: qrCid },
+        {
+          filename: "ticket-qr.png",
+          content: qrBase64,
+          type: "image/png",
+          content_id: qrCid,
+        },
       ],
     });
 
