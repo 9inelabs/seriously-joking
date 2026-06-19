@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DESIGN TOKENS (gradients / shadows used by component classes)
+   Mirrors the mockup CSS variables.
+   ============================================================ */
+:root {
+  --ink-1: #050b14;
+  --ink-2: #0a1628;
+  --ink-3: #0f1e36;
+  --ink-4: #16294a;
+  --line: #1f3461;
+
+  --gold-1: #f4d58f;
+  --gold-2: #d4a74a;
+  --gold-3: #9c7325;
+  --gold-4: #5c4416;
+
+  --cream: #f5edd8;
+  --cream-2: #e4d9bb;
+  --mute: #8a93a6;
+  --mute-2: #4a5470;
+
+  --gold-grad: linear-gradient(135deg, #f4d58f 0%, #d4a74a 35%, #9c7325 70%, #d4a74a 100%);
+  --gold-grad-soft: linear-gradient(135deg, rgba(244, 213, 143, 0.18) 0%, rgba(212, 167, 74, 0.08) 100%);
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-ink-1 text-cream font-body;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible gold keyboard focus on every interactive element */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212, 167, 74, 0.55);
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgba(212, 167, 74, 0.3);
+    color: var(--cream);
+  }
+}
+
+/* ============================================================
+   SIGNATURE COMPONENT CLASSES (lifted from the mockup)
+   ============================================================ */
+@layer components {
+  .gold-text {
+    background: var(--gold-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-[10px] text-[11px] font-bold uppercase text-gold-2;
+    letter-spacing: 0.22em;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 1px;
+    background: var(--gold-grad);
+  }
+
+  /* perforated horizontal rule */
+  .perf {
+    position: relative;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--gold-3) 50%, transparent 0%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    opacity: 0.5;
+  }
+
+  /* primary buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-[10px] rounded-sm text-[13px] font-bold uppercase;
+    padding: 16px 28px;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .btn-primary {
+    background: var(--gold-grad);
+    @apply text-ink-1 shadow-gold;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    @apply shadow-gold-hover;
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-ghost {
+    border: 1px solid var(--gold-3);
+    @apply text-gold-1;
+  }
+  .btn-ghost:hover {
+    background: rgba(212, 167, 74, 0.1);
+  }
+  .btn-block {
+    width: 100%;
+  }
+
+  /* form controls */
+  .input,
+  .select,
+  .textarea {
+    @apply bg-ink-1 rounded-sm text-cream;
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input::placeholder {
+    color: var(--mute-2);
+  }
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    outline: none;
+    border-color: var(--gold-3);
+    box-shadow: 0 0 0 3px rgba(212, 167, 74, 0.18);
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION — kill the marquee, pulses, and transitions
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
