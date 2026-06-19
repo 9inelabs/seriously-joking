@@ -27,6 +27,27 @@
   --gold-grad-soft: linear-gradient(135deg, rgba(244, 213, 143, 0.18) 0%, rgba(212, 167, 74, 0.08) 100%);
 }
 
+/* ============================================================
+   DISPLAY FONT
+   The display face is currently Bowlby One, loaded via next/font and exposed as
+   --font-display (see app/fonts.ts). It is the temporary stand-in for the
+   licensed Akira Expanded used on the print flyer.
+
+   TODO: swap Bowlby One → Akira Expanded once the .woff2 files are provided.
+   1. Drop the files into public/fonts/akira-expanded/.
+   2. Uncomment + complete the @font-face block below.
+   3. Prepend "'Akira Expanded'" to fontFamily.display in tailwind.config.ts.
+
+   @font-face {
+     font-family: "Akira Expanded";
+     src: url("/fonts/akira-expanded/AkiraExpanded.woff2") format("woff2"),
+          url("/fonts/akira-expanded/AkiraExpanded.woff") format("woff");
+     font-weight: 700;
+     font-style: normal;
+     font-display: swap;
+   }
+   ============================================================ */
+
 @layer base {
   html,
   body {

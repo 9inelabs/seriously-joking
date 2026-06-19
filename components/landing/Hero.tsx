@@ -38,7 +38,10 @@ export function Hero() {
         <div>
           <div className="eyebrow mb-6">House of Oga Micko · Presents</div>
 
-          <h1 className="mb-3 font-display text-[clamp(56px,9vw,124px)] uppercase leading-[.88] tracking-[.01em]">
+          {/* Bowlby One / Akira Expanded is far wider than Anton — sizes pulled
+              down and letter-spacing tightened so "SERIOUSLY" never overflows
+              the copy column (checked 380 / 768 / 1280). */}
+          <h1 className="mb-3 font-display text-[clamp(34px,7vw,88px)] uppercase leading-[.9] tracking-[-.01em]">
             <span className="block text-cream">Seriously</span>
             <span className="block translate-x-[.05em] gold-text">Joking</span>
           </h1>
@@ -47,7 +50,7 @@ export function Hero() {
             <span className="text-cream">Live with</span> MC Oga Micko
           </div>
 
-          <div className="mb-9 font-display text-[clamp(22px,3vw,32px)] uppercase tracking-[.04em] text-cream-2">
+          <div className="mb-9 font-display text-[clamp(16px,2.4vw,26px)] uppercase tracking-[.02em] text-cream-2">
             A Night of Stand-Up <span className="text-gold-1">◆</span> Owerri
           </div>
 

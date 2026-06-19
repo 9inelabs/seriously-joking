@@ -36,7 +36,11 @@ const config: Config = {
         err: "#EF4444",
       },
       fontFamily: {
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        // var(--font-display) currently resolves to Bowlby One (the Akira
+        // Expanded stand-in). TODO: once Akira Expanded is self-hosted via
+        // @font-face, prepend "'Akira Expanded'" so the stack reads
+        // 'Akira Expanded' → Bowlby One → system fallback.
+        display: ["var(--font-display)", "'Bowlby One'", "system-ui", "sans-serif"],
         script: ["var(--font-script)", "cursive"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],

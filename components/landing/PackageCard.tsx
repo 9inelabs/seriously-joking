@@ -48,19 +48,20 @@ export function PackageCard({ pkg }: { pkg: PackageDef }) {
       </div>
       <h3
         className={[
-          "mb-4 font-display uppercase leading-none tracking-[.04em] text-cream",
-          pkg.nameSmall ? "text-[22px]" : "text-[28px]",
+          "mb-4 font-display uppercase leading-[1.05] tracking-[0] text-cream",
+          pkg.nameSmall ? "text-[18px]" : "text-[24px]",
         ].join(" ")}
       >
         {pkg.name}
       </h3>
 
-      {/* price */}
+      {/* price — sizes trimmed so "₦150,000" fits the narrow 5-col card in the
+          wide display font */}
       {pkg.price === 0 ? (
-        <div className="mb-1 font-display text-[36px] leading-none gold-text">Free</div>
+        <div className="mb-1 font-display text-[26px] leading-none gold-text">Free</div>
       ) : (
-        <div className="mb-1 font-display text-[44px] leading-none gold-text">
-          <span className="mr-[2px] text-[22px] opacity-80">₦</span>
+        <div className="mb-1 font-display text-[30px] leading-none tracking-[-.01em] gold-text">
+          <span className="mr-[2px] text-[16px] opacity-80">₦</span>
           {pkg.price.toLocaleString("en-NG")}
         </div>
       )}

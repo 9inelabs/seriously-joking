@@ -90,7 +90,7 @@ export const Ticket = forwardRef<HTMLElement, { registration: Registration }>(
             </span>
           </header>
 
-          <h1 className="font-display text-[clamp(48px,6vw,64px)] uppercase leading-[.88] tracking-[.02em]">
+          <h1 className="font-display text-[clamp(34px,5vw,56px)] uppercase leading-[.9] tracking-[-.01em]">
             <span className="block text-cream">Seriously</span>
             <span className="block gold-text">Joking</span>
           </h1>
