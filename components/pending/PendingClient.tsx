@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { CheckCircle2, LifeBuoy, Mail, Ticket as TicketIcon } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { useRegistration } from "@/hooks/useRegistration";
+import { PACKAGES } from "@/lib/packages";
 import { EVENT } from "@/lib/event";
 
 function firstNameOf(full: string): string {
@@ -23,8 +26,19 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export function PendingClient({ refNumber }: { refNumber: string }) {
-  // One-shot fetch only — NO polling, NO auto-redirect. The ticket arrives by email.
+  const router = useRouter();
   const { registration, loading, error, notFound, refetch } = useRegistration(refNumber);
+
+  const isFreePackage =
+    registration ? PACKAGES[registration.package_type].price === 0 : false;
+
+  // Free ticket users should never see the pending screen —
+  // send them straight to the ticket page.
+  useEffect(() => {
+    if (registration && isFreePackage) {
+      router.replace(`/ticket/${encodeURIComponent(refNumber)}`);
+    }
+  }, [registration, isFreePackage, router, refNumber]);
 
   if (loading) {
     return (
@@ -60,9 +74,18 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
     );
   }
 
+  // Silently redirect free users — show nothing while redirecting
+  if (isFreePackage) {
+    return (
+      <Shell>
+        <div className="px-5 py-20 text-center text-mute">Redirecting…</div>
+      </Shell>
+    );
+  }
+
   const status = registration.payment_status;
 
-  // Already approved — friendly, no auto-redirect (email is the primary channel).
+  // Already approved — for paid users
   if (status === "approved") {
     return (
       <Shell>
@@ -75,8 +98,8 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
           </h1>
           <p className="mx-auto mb-8 max-w-[440px] text-[15px] leading-[1.6] text-mute">
             Your ticket&apos;s been emailed to{" "}
-            <span className="text-cream-2">{registration.email}</span>. You can also open it
-            right here.
+            <span className="text-cream-2">{registration.email}</span>. You can also open
+            it right here.
           </p>
           <Link href={`/ticket/${encodeURIComponent(refNumber)}`} className="btn btn-primary">
             <TicketIcon size={16} /> View your ticket
@@ -86,7 +109,7 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
     );
   }
 
-  // Rejected — apologetic; the detailed reason was emailed.
+  // Rejected
   if (status === "rejected") {
     return (
       <Shell>
@@ -98,9 +121,10 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
             We&apos;ve emailed you about this booking
           </h1>
           <p className="mx-auto mb-8 max-w-[440px] text-[15px] leading-[1.6] text-mute">
-            Check <span className="text-cream-2">{registration.email}</span> for the details on
-            reference <span className="font-mono text-cream-2">{registration.ref_number}</span>.
-            If you think it&apos;s a mistake, we&apos;re happy to take another look.
+            Check <span className="text-cream-2">{registration.email}</span> for the
+            details on reference{" "}
+            <span className="font-mono text-cream-2">{registration.ref_number}</span>. If
+            you think it&apos;s a mistake, we&apos;re happy to take another look.
           </p>
           <a href={`tel:${EVENT.supportPhone}`} className="btn btn-primary">
             <LifeBuoy size={16} /> Contact support
@@ -110,7 +134,7 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
     );
   }
 
-  // Default: pending — calm confirmation, static, safe to close.
+  // Default: pending — paid users only
   return (
     <Shell>
       <div className="mx-auto max-w-[620px] px-5 py-16 text-center md:py-20">
@@ -122,13 +146,12 @@ export function PendingClient({ refNumber }: { refNumber: string }) {
           Got it, {firstNameOf(registration.full_name)}. We&apos;re on it.
         </h1>
         <p className="mx-auto mb-10 max-w-[500px] text-[15px] leading-[1.65] text-mute">
-          We&apos;ve logged your transfer. As soon as our team confirms the payment with the
-          bank, your ticket lands in{" "}
-          <span className="text-cream-2">{registration.email}</span>. This usually takes under
-          30 minutes.
+          We&apos;ve logged your transfer. As soon as our team confirms the payment with
+          the bank, your ticket lands in{" "}
+          <span className="text-cream-2">{registration.email}</span>. This usually takes
+          under 30 minutes.
         </p>
 
-        {/* reference + copy */}
         <div className="mx-auto mb-10 inline-flex flex-col items-center gap-4 rounded-md border border-dashed border-[rgba(212,167,74,.4)] bg-ink-1 px-7 py-6">
           <div className="text-[11px] font-bold uppercase tracking-[.25em] text-gold-2">
             Your reference number

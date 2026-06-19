@@ -9,20 +9,43 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Spinner } from "@/components/ui/Spinner";
 import { useRegistration } from "@/hooks/useRegistration";
 import { Ticket } from "./Ticket";
+import { PACKAGES } from "@/lib/packages";
 
 export function TicketClient({ refNumber }: { refNumber: string }) {
   const router = useRouter();
   const { registration, loading, error, notFound, refetch } = useRegistration(refNumber);
   const [downloading, setDownloading] = useState(false);
+  // How many times we've retried waiting for approval to land in Supabase
+  const [pollCount, setPollCount] = useState(0);
 
   const status = registration?.payment_status;
+  const isFreePackage =
+    registration ? PACKAGES[registration.package_type].price === 0 : false;
 
-  // Guard: a ticket only exists once approved. Otherwise back to pending.
+  // For free tickets: if status is still "pending", it means the auto-approve
+  // hasn't written to Supabase yet. Retry fetching up to 6 times (6 seconds).
   useEffect(() => {
-    if (registration && status !== "approved") {
+    if (!registration) return;
+    if (!isFreePackage) return;
+    if (status === "approved") return;
+
+    if (pollCount < 6) {
+      const timer = setTimeout(() => {
+        refetch();
+        setPollCount((c) => c + 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [registration, status, isFreePackage, pollCount, refetch]);
+
+  // For paid tickets only: if not approved, send to pending screen.
+  useEffect(() => {
+    if (!registration) return;
+    if (isFreePackage) return; // free tickets wait above, never redirect to pending
+    if (status !== "approved") {
       router.replace(`/pending/${encodeURIComponent(refNumber)}`);
     }
-  }, [registration, status, router, refNumber]);
+  }, [registration, status, isFreePackage, router, refNumber]);
 
   function Shell({ children }: { children: React.ReactNode }) {
     return (
@@ -33,7 +56,7 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
     );
   }
 
-  if (loading) {
+  if (loading || (isFreePackage && status !== "approved" && pollCount < 6)) {
     return (
       <Shell>
         <div className="mx-auto max-w-[820px] px-5 py-16">
@@ -63,7 +86,27 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
     );
   }
 
-  // Not approved yet — the effect above redirects; render nothing meaningful.
+  // Free ticket still not approved after retries — show a gentle message
+  if (isFreePackage && status !== "approved") {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-[560px] px-5 py-20 text-center">
+          <h1 className="mb-4 font-display text-[clamp(26px,4vw,36px)] uppercase tracking-[.02em] text-cream">
+            Almost there…
+          </h1>
+          <p className="mb-6 text-[15px] leading-[1.65] text-mute">
+            Your free ticket is being confirmed. This usually takes just a second —
+            tap the button below to check again.
+          </p>
+          <button onClick={() => { setPollCount(0); refetch(); }} className="btn btn-primary">
+            Check again
+          </button>
+        </div>
+      </Shell>
+    );
+  }
+
+  // Not approved yet (paid) — redirect effect above handles it
   if (status !== "approved") {
     return (
       <Shell>
@@ -72,10 +115,6 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
     );
   }
 
-  // PDF is generated server-side (clean, identical across browsers). We fetch it
-  // as a blob and save it; if the blob download path is blocked (older mobile
-  // Safari), fall back to a direct navigation — the route sends the file with a
-  // Content-Disposition filename either way.
   async function downloadPdf() {
     setDownloading(true);
     const url = `/api/ticket/${encodeURIComponent(registration!.ref_number)}/pdf`;
@@ -93,7 +132,6 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
       a.remove();
       setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     } catch {
-      // Fallback: let the browser handle the file directly.
       window.location.href = url;
     } finally {
       setDownloading(false);
@@ -109,8 +147,8 @@ export function TicketClient({ refNumber }: { refNumber: string }) {
             You&apos;re in. See you at the show.
           </h1>
           <p className="text-[14px] text-mute">
-            Show this pass at the door — or just show your phone. We&apos;ll scan the code
-            at the entrance.
+            Show this pass at the door — or just show your phone. We&apos;ll scan the
+            code at the entrance.
           </p>
         </div>
 
