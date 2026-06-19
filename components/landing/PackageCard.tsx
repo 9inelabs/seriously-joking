@@ -55,13 +55,12 @@ export function PackageCard({ pkg }: { pkg: PackageDef }) {
         {pkg.name}
       </h3>
 
-      {/* price — sizes trimmed so "₦150,000" fits the narrow 5-col card in the
-          wide display font */}
+      {/* price — kept in the original Anton face at original sizes per client */}
       {pkg.price === 0 ? (
-        <div className="mb-1 font-display text-[26px] leading-none gold-text">Free</div>
+        <div className="mb-1 font-anton text-[36px] leading-none gold-text">Free</div>
       ) : (
-        <div className="mb-1 font-display text-[30px] leading-none tracking-[-.01em] gold-text">
-          <span className="mr-[2px] text-[16px] opacity-80">₦</span>
+        <div className="mb-1 font-anton text-[44px] leading-none gold-text">
+          <span className="mr-[2px] text-[22px] opacity-80">₦</span>
           {pkg.price.toLocaleString("en-NG")}
         </div>
       )}

@@ -7,7 +7,7 @@ export function Packages() {
       <div className="mb-12 grid items-end gap-6 md:grid-cols-[1fr_auto]">
         <div>
           <div className="eyebrow">Pick a Seat</div>
-          <h2 className="mt-3 font-display text-[clamp(34px,5vw,56px)] uppercase leading-[.95] tracking-[.02em] text-cream">
+          <h2 className="mt-3 font-anton text-[clamp(34px,5vw,56px)] uppercase leading-[.95] tracking-[.02em] text-cream">
             Five Ways
             <br />
             to <span className="text-gold-1">Show Up</span>

@@ -41,6 +41,8 @@ const config: Config = {
         // @font-face, prepend "'Akira Expanded'" so the stack reads
         // 'Akira Expanded' → Bowlby One → system fallback.
         display: ["var(--font-display)", "'Bowlby One'", "system-ui", "sans-serif"],
+        // Anton — original condensed face, kept only for the Packages heading + prices.
+        anton: ["var(--font-display-anton)", "'Anton'", "system-ui", "sans-serif"],
         script: ["var(--font-script)", "cursive"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],

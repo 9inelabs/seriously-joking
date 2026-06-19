@@ -1,4 +1,14 @@
-import { Bowlby_One, Allura, Inter, JetBrains_Mono } from "next/font/google";
+import { Bowlby_One, Anton, Allura, Inter, JetBrains_Mono } from "next/font/google";
+
+// Anton — retained ONLY for the Packages section heading and the package prices,
+// which the client wants left in the original condensed face. Exposed as
+// --font-display-anton (Tailwind: font-anton). Everything else uses --font-display.
+export const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display-anton",
+  display: "swap",
+});
 
 // Display — bold poster type used for headlines, package names, ticket title.
 // TODO: swap Bowlby One → Akira Expanded once the licensed font files are
@@ -38,4 +48,4 @@ export const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const fontVariables = `${displayFont.variable} ${allura.variable} ${inter.variable} ${jetbrainsMono.variable}`;
+export const fontVariables = `${displayFont.variable} ${anton.variable} ${allura.variable} ${inter.variable} ${jetbrainsMono.variable}`;
